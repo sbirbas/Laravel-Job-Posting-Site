@@ -1,33 +1,34 @@
 <?php
+
 namespace App\Models;
 
-class listing {
-    public static function all() {
-        return  [ 
-                [
-                'id' => 1,
-                'title' => 'Listing One',
-                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris porta neque diam. Nam sit amet cursus enim, non pulvinar dolor. Morbi id molestie mauris. Nulla lectus urna, bibendum eget sagittis id, tincidunt non ligula. Vivamus sodales augue ultrices nibh vehicula aliquam. Etiam consectetur nunc vitae sagittis bibendum. Vestibulum sit amet fringilla dolor, eu cursus tellus. Suspendisse rutrum faucibus ante, ac imperdiet est porttitor nec. Nulla eleifend porta ligula sit amet imperdiet.',
-            ],
-            [
-                'id' => 2,
-                'title' => 'Listing two',
-                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris porta neque diam. Nam sit amet cursus enim, non pulvinar dolor. Morbi id molestie mauris. Nulla lectus urna, bibendum eget sagittis id, tincidunt non ligula. Vivamus sodales augue ultrices nibh vehicula aliquam. Etiam consectetur nunc vitae sagittis bibendum. Vestibulum sit amet fringilla dolor, eu cursus tellus. Suspendisse rutrum faucibus ante, ac imperdiet est porttitor nec. Nulla eleifend porta ligula sit amet imperdiet.',
-            ],
-            ]
-        ;
-    
-    }
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
-    public static function find($id){
-        $listings = self::all();
+class listing extends Model
+{
+    use HasFactory;
 
-        foreach($listings as $listing) {
-            if($listing['id']== $id) {
-            return $listing;
+
+ //   protected $fillable =['title', 'company','location','website','email','tags','description'];
+
+
+    public function scopeFilter(Builder $query, array $filters) {
+        if($filters['tag'] ?? false) {
+            $query->where('tags', 'like', '%' . request('tag') . '%');
+        }
+
+        if($filters['search'] ?? false) {
+            $query->where('title', 'like', '%' . request('search') . '%')
+                ->orWhere('description', 'like', '%' . request('search') . '%')
+                ->orWhere('tags', 'like', '%' . request('search') . '%');
         }
     }
 
+
+    //relationship to user
+    public function user(){
+    return $this->belongsTo(User::class, 'user_id');
     }
 }
-
